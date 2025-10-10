@@ -2,9 +2,6 @@ import "dotenv/config";
 import express, { NextFunction, Request, Response } from "express";
 import cors from "cors";
 import session from "cookie-session";
-import path from "path";
-import passport from "passport";
-
 import { config } from "./config/app.config";
 import connectDatabase from "./config/database.config";
 import { errorHandler } from "./middlewares/errorHandler.middleware";
@@ -14,6 +11,7 @@ import { BadRequestException } from "./utils/appError";
 import { ErrorCodeEnum } from "./enums/error-code.enum";
 
 import "./config/passport.config";
+import passport from "passport";
 import authRoutes from "./routes/auth.route";
 import userRoutes from "./routes/user.route";
 import isAuthenticated from "./middlewares/isAuthenticated.middleware";
@@ -25,8 +23,8 @@ import taskRoutes from "./routes/task.route";
 const app = express();
 const BASE_PATH = config.BASE_PATH;
 
-// Middleware
 app.use(express.json());
+
 app.use(express.urlencoded({ extended: true }));
 
 app.use(
@@ -50,16 +48,15 @@ app.use(
   })
 );
 
-// Routes
 app.get(
   `/`,
   asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
-    res.status(200).json({
-      success: true,
-      message: 'Welcome to TeamSync API',
-      status: 'operational',
-      timestamp: new Date().toISOString(),
-      documentation: 'https://github.com/diprajgirase/TeamSync'
+    throw new BadRequestException(
+      "This is a bad request",
+      ErrorCodeEnum.AUTH_INVALID_TOKEN
+    );
+    return res.status(HTTPSTATUS.OK).json({
+      message: "Hello Subscribe to the channel & share",
     });
   })
 );
@@ -71,27 +68,9 @@ app.use(`${BASE_PATH}/member`, isAuthenticated, memberRoutes);
 app.use(`${BASE_PATH}/project`, isAuthenticated, projectRoutes);
 app.use(`${BASE_PATH}/task`, isAuthenticated, taskRoutes);
 
-// 🧱 Serve Frontend (Vite build)
-if (config.NODE_ENV === "production") {
-  // Path to the frontend files in the dist directory
-  const frontendPath = path.join(__dirname, "../frontend");
-  
-  console.log('Serving static files from:', frontendPath);
-  
-  // Serve static files
-  app.use(express.static(frontendPath));
-  
-  // Handle SPA routing - serve index.html for all routes
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(frontendPath, 'index.html'));
-  });
-}
-
-// Error Handler
 app.use(errorHandler);
 
-// Start Server
 app.listen(config.PORT, async () => {
-  console.log(`🚀 Server running on port ${config.PORT} in ${config.NODE_ENV}`);
+  console.log(`Server listening on port ${config.PORT} in ${config.NODE_ENV}`);
   await connectDatabase();
 });

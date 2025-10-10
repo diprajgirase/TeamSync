@@ -70,13 +70,17 @@ app.use(`${BASE_PATH}/task`, isAuthenticated, taskRoutes);
 
 // 🧱 Serve Frontend (Vite build)
 if (config.NODE_ENV === "production") {
-  // Adjust path to point to frontend/dist (Vite output)
-  const frontendPath = path.join(__dirname, "../../frontend/dist");
-
+  // Path to the frontend files in the dist directory
+  const frontendPath = path.join(__dirname, "../frontend");
+  
+  console.log('Serving static files from:', frontendPath);
+  
+  // Serve static files
   app.use(express.static(frontendPath));
-
-  app.get("*", (req, res) => {
-    res.sendFile(path.join(frontendPath, "index.html"));
+  
+  // Handle SPA routing - serve index.html for all routes
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(frontendPath, 'index.html'));
   });
 }
 

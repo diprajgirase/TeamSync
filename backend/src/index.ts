@@ -54,10 +54,13 @@ app.use(
 app.get(
   `/`,
   asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
-    throw new BadRequestException(
-      "This is a bad request",
-      ErrorCodeEnum.AUTH_INVALID_TOKEN
-    );
+    res.status(200).json({
+      success: true,
+      message: 'Welcome to TeamSync API',
+      status: 'operational',
+      timestamp: new Date().toISOString(),
+      documentation: 'https://github.com/diprajgirase/TeamSync'
+    });
   })
 );
 

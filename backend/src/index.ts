@@ -2,6 +2,9 @@ import "dotenv/config";
 import express, { NextFunction, Request, Response } from "express";
 import cors from "cors";
 import session from "cookie-session";
+import path from "path";
+import passport from "passport";
+
 import { config } from "./config/app.config";
 import connectDatabase from "./config/database.config";
 import { errorHandler } from "./middlewares/errorHandler.middleware";
@@ -11,7 +14,6 @@ import { BadRequestException } from "./utils/appError";
 import { ErrorCodeEnum } from "./enums/error-code.enum";
 
 import "./config/passport.config";
-import passport from "passport";
 import authRoutes from "./routes/auth.route";
 import userRoutes from "./routes/user.route";
 import isAuthenticated from "./middlewares/isAuthenticated.middleware";
@@ -19,15 +21,13 @@ import workspaceRoutes from "./routes/workspace.route";
 import memberRoutes from "./routes/member.route";
 import projectRoutes from "./routes/project.route";
 import taskRoutes from "./routes/task.route";
-import path from "path";
 
 const app = express();
 const BASE_PATH = config.BASE_PATH;
 
+// Middleware
 app.use(express.json());
-
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname,"../public")))
 
 app.use(
   session({
@@ -50,6 +50,7 @@ app.use(
   })
 );
 
+// Routes
 app.get(
   `/`,
   asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
@@ -57,9 +58,6 @@ app.get(
       "This is a bad request",
       ErrorCodeEnum.AUTH_INVALID_TOKEN
     );
-    return res.status(HTTPSTATUS.OK).json({
-      message: "Hello Subscribe to the channel & share",
-    });
   })
 );
 
@@ -70,13 +68,23 @@ app.use(`${BASE_PATH}/member`, isAuthenticated, memberRoutes);
 app.use(`${BASE_PATH}/project`, isAuthenticated, projectRoutes);
 app.use(`${BASE_PATH}/task`, isAuthenticated, taskRoutes);
 
-app.get("/",(req:Request, res:Response)=>{
-  res.sendFile("index.html")
-})
+// 🧱 Serve Frontend (Vite build)
+if (config.NODE_ENV === "production") {
+  // Adjust path to point to frontend/dist (Vite output)
+  const frontendPath = path.join(__dirname, "../../frontend/dist");
 
+  app.use(express.static(frontendPath));
+
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(frontendPath, "index.html"));
+  });
+}
+
+// Error Handler
 app.use(errorHandler);
 
+// Start Server
 app.listen(config.PORT, async () => {
-  console.log(`Server listening on port ${config.PORT} in ${config.NODE_ENV}`);
+  console.log(`🚀 Server running on port ${config.PORT} in ${config.NODE_ENV}`);
   await connectDatabase();
 });

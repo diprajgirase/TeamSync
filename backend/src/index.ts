@@ -26,9 +26,13 @@ const app = express();
 const BASE_PATH = config.BASE_PATH;
 
 app.use(express.json());
-
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, "../public")));
+
+// Serve static files from the React app
+const staticPath = path.join(__dirname, "../../client/dist");
+app.use(express.static(staticPath));
+
+// API routes
 
 app.use(
   session({
@@ -57,6 +61,11 @@ app.use(`${BASE_PATH}/workspace`, isAuthenticated, workspaceRoutes);
 app.use(`${BASE_PATH}/member`, isAuthenticated, memberRoutes);
 app.use(`${BASE_PATH}/project`, isAuthenticated, projectRoutes);
 app.use(`${BASE_PATH}/task`, isAuthenticated, taskRoutes);
+
+// Serve the React app for any other route (client-side routing)
+app.get('*', (req: Request, res: Response) => {
+  res.sendFile(path.join(staticPath, 'index.html'));
+});
 
 app.use(errorHandler);
 

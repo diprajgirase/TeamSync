@@ -61,7 +61,7 @@ export const loginController = asyncHandler(
           }
 
           console.log("🔐 Login Debug:");
-          console.log("- Session ID after login:", req.sessionID);
+          console.log("- Session ID after login:", (req as any).sessionID);
           console.log("- Session after login:", req.session);
           console.log("- User after login:", req.user);
           console.log("- Session cookie will be sent:", req.session?.cookie);

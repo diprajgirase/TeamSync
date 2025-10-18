@@ -60,6 +60,12 @@ export const loginController = asyncHandler(
             return next(err);
           }
 
+          console.log("🔐 Login Debug:");
+          console.log("- Session ID after login:", req.sessionID);
+          console.log("- Session after login:", req.session);
+          console.log("- User after login:", req.user);
+          console.log("- Session cookie will be sent:", req.session?.cookie);
+
           return res.status(HTTPSTATUS.OK).json({
             message: "Logged in successfully",
             user,

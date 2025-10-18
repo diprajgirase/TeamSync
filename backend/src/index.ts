@@ -70,7 +70,9 @@ app.get('*', (req: Request, res: Response) => {
 app.use(errorHandler);
 
 app.get("/",(req:Request,res:Response)=>{
-  res.sendFile("index.html");
+ res.json({
+  message: 'server is running properly'
+ })
 })
 
 app.listen(config.PORT, async () => {

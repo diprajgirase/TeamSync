@@ -55,12 +55,12 @@ app.use(
   })
 );
 
-app.use(`${BASE_PATH}/auth`, authRoutes);
-app.use(`${BASE_PATH}/user`, isAuthenticated, userRoutes);
-app.use(`${BASE_PATH}/workspace`, isAuthenticated, workspaceRoutes);
-app.use(`${BASE_PATH}/member`, isAuthenticated, memberRoutes);
-app.use(`${BASE_PATH}/project`, isAuthenticated, projectRoutes);
-app.use(`${BASE_PATH}/task`, isAuthenticated, taskRoutes);
+app.use(`/auth`, authRoutes);
+app.use(`/user`, isAuthenticated, userRoutes);
+app.use(`/workspace`, isAuthenticated, workspaceRoutes);
+app.use(`/member`, isAuthenticated, memberRoutes);
+app.use(`/project`, isAuthenticated, projectRoutes);
+app.use(`/task`, isAuthenticated, taskRoutes);
 
 app.use(errorHandler);
 

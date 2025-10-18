@@ -62,11 +62,6 @@ app.use(`${BASE_PATH}/member`, isAuthenticated, memberRoutes);
 app.use(`${BASE_PATH}/project`, isAuthenticated, projectRoutes);
 app.use(`${BASE_PATH}/task`, isAuthenticated, taskRoutes);
 
-// Serve the React app for any other route (client-side routing)
-app.get('*', (req: Request, res: Response) => {
-  res.sendFile(path.join(staticPath, 'index.html'));
-});
-
 app.use(errorHandler);
 
 app.get("/",(req:Request,res:Response)=>{

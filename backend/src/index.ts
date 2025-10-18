@@ -49,10 +49,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use(
-  cors({
-    origin: config.FRONTEND_ORIGIN,
-    credentials: true,
-  })
+  cors({})
 );
 
 app.use(`/auth`, authRoutes);

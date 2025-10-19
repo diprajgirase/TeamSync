@@ -1,4 +1,4 @@
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -27,7 +27,6 @@ import { toast } from "@/hooks/use-toast";
 import { Loader } from "lucide-react";
 
 const SignIn = () => {
-  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const returnUrl = searchParams.get("returnUrl");
 
@@ -57,15 +56,32 @@ const SignIn = () => {
 
     mutate(values, {
       onSuccess: (data) => {
-        const user = data.user;
-        console.log(user);
+        const { user, access_token } = data;
+        
+        // Store the token in localStorage
+        if (access_token) {
+          localStorage.setItem('token', access_token);
+          console.log('Token stored in localStorage');
+        } else {
+          console.warn('No access_token received in login response');
+          toast({
+            title: "Login Error",
+            description: "No authentication token received",
+            variant: "destructive",
+          });
+          return;
+        }
+        
         const decodedUrl = returnUrl ? decodeURIComponent(returnUrl) : null;
-        navigate(decodedUrl || `/workspace/${user.currentWorkspace}`);
+        
+        // Force a full page reload to ensure all components get the new auth state
+        window.location.href = decodedUrl || `/workspace/${user.currentWorkspace}`;
       },
-      onError: (error) => {
+      onError: (error: any) => {
+        console.error('Login error:', error);
         toast({
-          title: "Error",
-          description: error.message,
+          title: "Login Failed",
+          description: error.response?.data?.message || error.message || 'An error occurred during login',
           variant: "destructive",
         });
       },

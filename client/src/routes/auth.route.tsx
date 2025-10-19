@@ -1,20 +1,34 @@
 import { DashboardSkeleton } from "@/components/skeleton-loaders/dashboard-skeleton";
 import useAuth from "@/hooks/api/use-auth";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
-import { isAuthRoute } from "./common/routePaths";
+import { AUTH_ROUTES } from "./common/routePaths";
 
 const AuthRoute = () => {
   const location = useLocation();
-  const { data: authData, isLoading } = useAuth();
+  const { data: authData, isLoading, isFetching } = useAuth();
   const user = authData?.user;
 
-  const _isAuthRoute = isAuthRoute(location.pathname);
+  // Check if current route is an auth route
+  const isAuthPage = Object.values(AUTH_ROUTES).includes(location.pathname);
+  const token = localStorage.getItem('token');
 
-  if (isLoading && !_isAuthRoute) return <DashboardSkeleton />;
+  // Show loading state if we're still checking auth
+  if ((isLoading || isFetching) && token) {
+    return <DashboardSkeleton />;
+  }
 
-  if (!user) return <Outlet />;
+  // If user is not authenticated and not on an auth page, redirect to login
+  if (!user && !isAuthPage) {
+    return <Navigate to="/" replace />;
+  }
 
-  return <Navigate to={`workspace/${user.currentWorkspace?._id}`} replace />;
+  // If user is authenticated and on an auth page, redirect to workspace
+  if (user && isAuthPage) {
+    return <Navigate to={`/workspace/${user.currentWorkspace?._id}`} replace />;
+  }
+
+  // Otherwise, render the requested route
+  return <Outlet />;
 };
 
 export default AuthRoute;

@@ -86,18 +86,13 @@ export const loginController = asyncHandler(
 
 export const logOutController = asyncHandler(
   async (req: Request, res: Response) => {
-    req.logout((err) => {
-      if (err) {
-        console.error("Logout error:", err);
-        return res
-          .status(HTTPSTATUS.INTERNAL_SERVER_ERROR)
-          .json({ error: "Failed to log out" });
-      }
+    // For JWT, we don't need to do anything on the server side
+    // The client will remove the token from localStorage
+    // We could implement token blacklisting here if needed in the future
+    
+    return res.status(HTTPSTATUS.OK).json({
+      success: true,
+      message: 'Successfully logged out'
     });
-
-    req.session = null;
-    return res
-      .status(HTTPSTATUS.OK)
-      .json({ message: "Logged out successfully" });
   }
 );

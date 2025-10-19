@@ -26,10 +26,16 @@ const LogoutDialog = (props: {
   const { mutate, isPending } = useMutation({
     mutationFn: logoutMutationFn,
     onSuccess: () => {
-      queryClient.resetQueries({
-        queryKey: ["authUser"],
-      });
+      // Clear the JWT token from localStorage
+      localStorage.removeItem('token');
+      
+      // Clear React Query cache
+      queryClient.clear();
+      
+      // Redirect to home page
       navigate("/");
+      
+      // Close the dialog
       setIsOpen(false);
     },
     onError: (error) => {

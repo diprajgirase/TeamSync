@@ -47,16 +47,21 @@ API.interceptors.response.use(
   async (error) => {
     const { data, status } = error.response || {};
 
-        // Handle 401 Unauthorized
+    // Handle 401 Unauthorized
     if (status === 401) {
+      console.log('401 Unauthorized - Invalid or expired token');
+      
+      // Clear the token from localStorage
+      localStorage.removeItem('token');
+      
       // Only redirect if we're not already on the login page
-      if (window.location.pathname !== '/') {
-        console.log('401 Unauthorized - Redirecting to login');
-        localStorage.removeItem('token');
+      if (!['/', '/sign-in'].includes(window.location.pathname)) {
+        console.log('Redirecting to login page');
         // Use replace instead of direct href to prevent adding to history
-        window.location.replace('/');
+        window.location.replace('/sign-in');
       }
-      return Promise.reject('Session expired. Please log in again.');
+      
+      return Promise.reject(error.response?.data?.message || 'Session expired. Please log in again.');
     }
 
     const customError: CustomError = {

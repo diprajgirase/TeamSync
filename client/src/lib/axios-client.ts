@@ -1,7 +1,14 @@
 import { CustomError } from "@/types/custom-error.type";
 import axios from "axios";
 
-const baseURL = import.meta.env.VITE_API_BASE_URL;
+// Ensure baseURL ends with exactly one slash
+let baseURL = import.meta.env.VITE_API_BASE_URL || '';
+// Remove trailing slash if exists
+baseURL = baseURL.endsWith('/') ? baseURL.slice(0, -1) : baseURL;
+// Add /api prefix if not already present
+if (!baseURL.endsWith('/api')) {
+  baseURL = baseURL + '/api';
+}
 
 // Function to get token from localStorage
 const getAuthToken = () => {

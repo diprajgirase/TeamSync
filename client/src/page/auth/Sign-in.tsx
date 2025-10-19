@@ -54,9 +54,6 @@ const SignIn = () => {
     // Store the token in localStorage
     localStorage.setItem('token', access_token);
     
-    // Clear any existing axios headers to prevent caching
-    const authHeader = `Bearer ${access_token}`;
-    
     // Set a small delay to ensure localStorage is updated
     setTimeout(() => {
       const decodedUrl = returnUrl ? decodeURIComponent(returnUrl) : null;

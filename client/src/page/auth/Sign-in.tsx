@@ -57,11 +57,7 @@ const SignIn = () => {
       onSuccess: (data) => {
         const { user, access_token } = data;
         
-        // Store the token in localStorage
-        if (access_token) {
-          localStorage.setItem('token', access_token);
-          console.log('Token stored in localStorage');
-        } else {
+        if (!access_token) {
           console.warn('No access_token received in login response');
           toast({
             title: "Login Error",
@@ -71,10 +67,27 @@ const SignIn = () => {
           return;
         }
         
-        const decodedUrl = returnUrl ? decodeURIComponent(returnUrl) : null;
-        
-        // Force a full page reload to ensure all components get the new auth state
-        window.location.href = decodedUrl || `/workspace/${user.currentWorkspace}`;
+        try {
+          // Store the token in localStorage
+          localStorage.setItem('token', access_token);
+          
+          // Add a small delay to ensure the token is properly set
+          setTimeout(() => {
+            const decodedUrl = returnUrl ? decodeURIComponent(returnUrl) : null;
+            const redirectUrl = decodedUrl || `/workspace/${user.currentWorkspace}`;
+            
+            // Force a full page reload to ensure all components get the new auth state
+            window.location.href = redirectUrl;
+          }, 100);
+          
+        } catch (error) {
+          console.error('Error during login:', error);
+          toast({
+            title: "Login Error",
+            description: "An error occurred while processing your login",
+            variant: "destructive",
+          });
+        }
       },
       onError: (error: any) => {
         console.error('Login error:', error);

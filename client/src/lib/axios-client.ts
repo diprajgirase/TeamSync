@@ -12,9 +12,12 @@ if (!baseURL.endsWith('/api')) {
 
 // Function to get token from localStorage
 const getAuthToken = () => {
-  // Check for token in localStorage
-  const token = localStorage.getItem('token') || '';
-  return token;
+  try {
+    return localStorage.getItem('token') || '';
+  } catch (error) {
+    console.error('Error accessing localStorage:', error);
+    return '';
+  }
 };
 
 const options = {
@@ -31,12 +34,14 @@ const API = axios.create(options);
 // Request interceptor to add auth token to requests
 API.interceptors.request.use(
   (config) => {
+    // Skip adding auth header for login/register endpoints
+    if (config.url?.includes('/auth/')) {
+      return config;
+    }
+    
     const token = getAuthToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
-      console.log('Authorization header set with token');
-    } else {
-      console.warn('No auth token found in localStorage');
     }
     return config;
   },

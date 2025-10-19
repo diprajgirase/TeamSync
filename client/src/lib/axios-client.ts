@@ -1,13 +1,26 @@
 import { CustomError } from "@/types/custom-error.type";
 import axios from "axios";
 
-// Ensure baseURL ends with exactly one slash
-let baseURL = import.meta.env.VITE_API_BASE_URL || '';
+// Normalize base URL
+let baseURL = (import.meta.env.VITE_API_BASE_URL || '').trim();
+
 // Remove trailing slash if exists
 baseURL = baseURL.endsWith('/') ? baseURL.slice(0, -1) : baseURL;
-// Add /api prefix if not already present
-if (!baseURL.endsWith('/api')) {
-  baseURL = baseURL + '/api';
+
+// In production, ensure we don't have double /api
+const isProduction = import.meta.env.PROD;
+if (isProduction) {
+  // Remove any existing /api from the end
+  if (baseURL.endsWith('/api')) {
+    baseURL = baseURL.slice(0, -4);
+  }
+  // Add single /api for production
+  baseURL = `${baseURL}/api`;
+} else {
+  // For development, ensure /api is present
+  if (!baseURL.endsWith('/api')) {
+    baseURL = baseURL + '/api';
+  }
 }
 
 // Function to get token from localStorage
@@ -39,10 +52,15 @@ API.interceptors.request.use(
       return config;
     }
     
-    const token = getAuthToken();
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+    try {
+      const token = getAuthToken();
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+    } catch (error) {
+      console.error('Error in request interceptor:', error);
     }
+    
     return config;
   },
   (error) => {

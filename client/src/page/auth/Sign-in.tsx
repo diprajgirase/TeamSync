@@ -50,6 +50,27 @@ const SignIn = () => {
     },
   });
 
+  const handleSuccessfulLogin = (user: any, access_token: string) => {
+    // Store the token in localStorage
+    localStorage.setItem('token', access_token);
+    
+    // Clear any existing axios headers to prevent caching
+    const authHeader = `Bearer ${access_token}`;
+    
+    // Set a small delay to ensure localStorage is updated
+    setTimeout(() => {
+      const decodedUrl = returnUrl ? decodeURIComponent(returnUrl) : null;
+      const redirectUrl = decodedUrl || `/workspace/${user.currentWorkspace}`;
+      
+      // Force a hard redirect with a timestamp to prevent caching
+      const timestamp = new Date().getTime();
+      const finalUrl = `${window.location.origin}${redirectUrl}?t=${timestamp}`;
+      
+      // Clear any existing axios instance
+      window.location.href = finalUrl;
+    }, 300);
+  };
+
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     if (isPending) return;
 
@@ -68,18 +89,7 @@ const SignIn = () => {
         }
         
         try {
-          // Store the token in localStorage
-          localStorage.setItem('token', access_token);
-          
-          // Add a small delay to ensure the token is properly set
-          setTimeout(() => {
-            const decodedUrl = returnUrl ? decodeURIComponent(returnUrl) : null;
-            const redirectUrl = decodedUrl || `/workspace/${user.currentWorkspace}`;
-            
-            // Force a full page reload to ensure all components get the new auth state
-            window.location.href = redirectUrl;
-          }, 100);
-          
+          handleSuccessfulLogin(user, access_token);
         } catch (error) {
           console.error('Error during login:', error);
           toast({

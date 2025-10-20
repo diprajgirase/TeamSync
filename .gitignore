@@ -63,3 +63,7 @@ out/
 
 # Local development
 .local/
+backend/env.example
+client/.env.example
+client/env.example
+deployment.md

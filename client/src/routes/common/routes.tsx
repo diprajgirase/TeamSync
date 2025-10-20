@@ -1,4 +1,5 @@
 import GoogleOAuthCallback from "@/page/auth/GoogleOAuthCallback";
+import OAuthDebug from "@/page/auth/OAuthDebug";
 import SignIn from "@/page/auth/Sign-in";
 import SignUp from "@/page/auth/Sign-up";
 import WorkspaceDashboard from "@/page/workspace/Dashboard";
@@ -25,4 +26,5 @@ export const protectedRoutePaths = [
 export const baseRoutePaths = [
   { path: BASE_ROUTE.INVITE_URL, element: <InviteUser /> },
   { path: AUTH_ROUTES.GOOGLE_OAUTH_CALLBACK, element: <GoogleOAuthCallback /> },
+  { path: "/oauth-debug", element: <OAuthDebug /> },
 ];
